@@ -188,8 +188,15 @@ class Blockchain {
     validateChain() {
         let self = this;
         let errorLog = [];
+        var previousBlockHash = null;
         return new Promise(async (resolve, reject) => {
-            let isValid = self.chain.every(async block => await block.validate());
+            self.chain.forEach(async block => {
+                let isValid = await block.validate();
+                if (!isValid || block.previousBlockHash != previousBlockHash) {
+                    errorLog.push(block)
+                }
+                previousBlockHash = block.hash;
+            });
             resolve(isValid);
         });
     }
